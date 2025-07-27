@@ -1647,6 +1647,13 @@ function showChoiceModal(description, choiceType, age) {
                 player.has_house = true;
             }
             
+            // babyの選択処理
+            if (choiceType === 'baby' && choiceIndex === 0) {
+                // 子どもを持つことを選択
+                player.has_children = true;
+                player.number_of_children++;
+            }
+            
             showEventModal(selectedChoice.text, selectedChoice.effect, age);
             document.body.removeChild(modal);
         }
