@@ -1,0 +1,519 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f8ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: #2c3e78;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#game-board {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    background-image: url('images/board_background.png');
+    background-size: cover;
+    background-position: center;
+    border: 3px solid #2c3e78;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+#board-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#game-board path {
+    fill: none;
+    stroke: rgba(50, 50, 50, 0.7);
+    stroke-width: 35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+#game-board line {
+    stroke: white;
+    stroke-width: 2;
+}
+
+#game-board text {
+    fill: white;
+    font-size: 10px;
+    font-weight: bold;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+}
+
+#player-pawn {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    transition: all 0.5s ease-in-out;
+    z-index: 10;
+}
+
+#player-pawn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+#info-panel {
+    display: flex;
+    gap: 20px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+}
+
+#info-panel div {
+    font-weight: bold;
+    color: #2c3e78;
+}
+
+#control-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+#roll-dice {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#roll-dice:hover {
+    background-color: #c0392b;
+}
+
+#roll-dice:active {
+    transform: scale(0.98);
+}
+
+#dice-result {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e78;
+    min-height: 25px;
+    display: flex;
+    align-items: center;
+}
+
+/* モーダルのスタイル */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+}
+
+.modal-content h2 {
+    color: #2c3e78;
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+.character-buttons {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+}
+
+.char-select-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    border: 3px solid #ddd;
+    border-radius: 15px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.char-select-btn:hover {
+    border-color: #2c3e78;
+    background-color: #e8f0fe;
+    transform: translateY(-3px);
+}
+
+.char-select-btn img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.char-select-btn span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e78;
+}
+
+/* ルーレットのスタイル */
+#roulette {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 20px auto;
+    border-radius: 50%;
+    border: 4px solid #2c3e78;
+    background: conic-gradient(
+        from -36deg,
+        #ff6b6b 0deg 72deg,
+        #4ecdc4 72deg 144deg,
+        #45b7d1 144deg 216deg,
+        #96ceb4 216deg 288deg,
+        #ffeaa7 288deg 360deg
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.roulette-numbers {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.number {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #2c3e78;
+    border: 2px solid #2c3e78;
+}
+
+.number[data-num="1"] { top: 15px; left: 50%; transform: translate(-50%, -50%); }
+.number[data-num="2"] { top: 35%; right: 22px; transform: translate(50%, -50%); }
+.number[data-num="3"] { bottom: 28px; right: 28%; transform: translate(50%, 50%); }
+.number[data-num="4"] { bottom: 28px; left: 28%; transform: translate(-50%, 50%); }
+.number[data-num="5"] { top: 35%; left: 22px; transform: translate(-50%, -50%); }
+
+#roulette-needle {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 60px solid #e74c3c;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    transform-origin: bottom center;
+    z-index: 10;
+    transition: transform 0.1s ease;
+}
+
+/* ルーレット回転アニメーション */
+@keyframes spin-roulette {
+    0% { transform: translateX(-50%) rotate(0deg); }
+    70% { transform: translateX(-50%) rotate(1800deg); }
+    100% { transform: translateX(-50%) rotate(var(--final-rotation)); }
+}
+
+.spinning {
+    animation: spin-roulette 3s cubic-bezier(0.17, 0.67, 0.12, 0.99) forwards;
+}
+
+/* イベントモーダルとコース選択モーダルのスタイル */
+#event-modal .modal-content,
+#course-select-modal .modal-content {
+    max-width: 600px;
+    width: 90%;
+}
+
+#event-message {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: #2c3e78;
+}
+
+#event-ok-btn {
+    background-color: #2c3e78;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#event-ok-btn:hover {
+    background-color: #1a2759;
+}
+
+#course-select-title {
+    color: #2c3e78;
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-align: center;
+}
+
+#course-options {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+#course-options button {
+    background-color: #f0f8ff;
+    color: #2c3e78;
+    border: 2px solid #2c3e78;
+    padding: 15px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 200px;
+}
+
+#course-options button:hover {
+    background-color: #2c3e78;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* 選択肢ボタンのスタイル */
+.choice-btn {
+    background-color: #f0f8ff;
+    color: #2c3e78;
+    border: 2px solid #2c3e78;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 10px;
+    min-width: 150px;
+}
+
+.choice-btn:hover {
+    background-color: #2c3e78;
+    color: white;
+    transform: translateY(-2px);
+}
+
+#choice-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* リスタートボタンのスタイル */
+#restart-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+}
+
+#restart-btn:hover {
+    background-color: #c0392b;
+}
+
+/* 効果表示のスタイル */
+.event-effect-display {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    border: 2px solid #e9ecef;
+}
+
+.effect-positive {
+    color: #28a745;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.effect-negative {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.effect-neutral {
+    color: #6c757d;
+    background-color: #e2e3e5;
+    border-color: #d6d8db;
+}
+
+/* 進路選択・転職確認・結婚確認・離婚確認・転職先選択・事業拡大選択モーダルのスタイル */
+#career-start-options,
+#job-change-options,
+#marriage-options,
+#divorce-options,
+#career-change-options,
+#business-expansion-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+#career-start-options button,
+#job-change-options button,
+#marriage-options button,
+#divorce-options button,
+#career-change-options button,
+#business-expansion-options button {
+    background-color: #f0f8ff;
+    color: #2c3e78;
+    border: 2px solid #2c3e78;
+    padding: 15px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 250px;
+}
+
+#career-start-options button:hover,
+#job-change-options button:hover,
+#marriage-options button:hover,
+#divorce-options button:hover,
+#career-change-options button:hover,
+#business-expansion-options button:hover {
+    background-color: #2c3e78;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* 離婚モーダル専用スタイル */
+#divorce-modal .modal-content {
+    background-color: #fffbf0;
+}
+
+#divorce-modal h2 {
+    color: #e74c3c;
+}
+
+#divorce-modal p {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+/* タイトル画面のスタイル */
+#title-screen-modal {
+    z-index: 1100; /* 他のモーダルより上に表示 */
+}
+
+.title-screen {
+    text-align: center;
+    padding: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    border-radius: 20px;
+}
+
+.title-image {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.start-button {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    color: white;
+    border: none;
+    padding: 20px 40px;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+    animation: pulse 2s infinite;
+}
+
+.start-button:hover {
+    background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(255, 107, 107, 0.5);
+}
+
+.start-button:active {
+    transform: translateY(-1px);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

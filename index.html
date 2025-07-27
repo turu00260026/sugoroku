@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>運命のルーレット</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- タイトル画面モーダル -->
+    <div id="title-screen-modal" class="modal-overlay">
+        <div class="modal-content title-screen">
+            <img src="images/title.png" alt="運命のルーレット" class="title-image">
+            <button id="start-game-btn" class="start-button">🎯 ゲームスタート 🎯</button>
+        </div>
+    </div>
+
+    <!-- 性別選択モーダル -->
+    <div id="character-select-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>主人公を選んでください</h2>
+            <div class="character-buttons">
+                <button class="char-select-btn" data-gender="male">
+                    <img src="images/malemae.png" alt="男性">
+                    <span>男性</span>
+                </button>
+                <button class="char-select-btn" data-gender="female">
+                    <img src="images/femalemae.png" alt="女性">
+                    <span>女性</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 進路選択モーダル -->
+    <div id="career-start-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>18歳、最初の進路を選ぼう</h2>
+            <div id="career-start-options">
+                <button data-career="high_school">高卒で就職する</button>
+                <button data-career="college">専門学校へ進学</button>
+                <button data-career="university">大学へ進学</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 転職確認用モーダル -->
+    <div id="job-change-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>転機の年齢だ。転職に挑戦する？</h2>
+            <div id="job-change-options">
+                <button data-choice="yes">はい、挑戦する</button>
+                <button data-choice="no">いいえ、今の仕事を続ける</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 結婚確認用モーダル -->
+    <div id="marriage-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>素敵な人と出会いました！結婚しますか？</h2>
+            <div id="marriage-options">
+                <button data-marriage="yes">はい、結婚します</button>
+                <button data-marriage="no">今は仕事に集中したい</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 離婚確認用モーダル -->
+    <div id="divorce-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>パートナーとの性格の不一致が深刻化...</h2>
+            <p>価値観の違いが大きくなってきました。どうしますか？</p>
+            <div id="divorce-options">
+                <button data-divorce="yes">離婚する</button>
+                <button data-divorce="no">関係を修復する努力をする</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 転職先選択用モーダル -->
+    <div id="career-change-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>🔄 転職先を選んでください</h2>
+            <p>転職に挑戦することにしました。どちらの道に進みますか？</p>
+            <div id="career-change-options">
+                <button data-career-change="company">企業に転職する</button>
+                <button data-career-change="freelance">フリーランス・起業に転身する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 事業拡大選択用モーダル -->
+    <div id="business-expansion-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>事業拡大のチャンス！</h2>
+            <p>新しいビジネスチャンスが訪れました。事業を拡大しますか？</p>
+            <div id="business-expansion-options">
+                <button data-expansion="yes">事業拡大に挑戦する</button>
+                <button data-expansion="no">現状維持を選ぶ</button>
+            </div>
+        </div>
+    </div>
+
+    <h1>運命のルーレット</h1>
+    
+    <div id="game-board">
+        <svg id="board-svg" width="800" height="600"></svg>
+        <div id="player-pawn">
+            <img src="images/malemae.png" alt="player">
+        </div>
+    </div>
+    
+    <div id="info-panel">
+        <div>現在のマス: <span id="current-position">1</span></div>
+        <div>年齢: <span id="player-age">18</span>歳</div>
+        <div>プレイヤー: <span id="player-name">プレイヤー1</span></div>
+    </div>
+    
+    <div id="control-panel">
+        <div id="roulette">
+            <div class="roulette-numbers">
+                <div class="number" data-num="1">1</div>
+                <div class="number" data-num="2">2</div>
+                <div class="number" data-num="3">3</div>
+                <div class="number" data-num="4">4</div>
+                <div class="number" data-num="5">5</div>
+            </div>
+            <div id="roulette-needle"></div>
+        </div>
+        <button id="roll-dice">ルーレットを回す</button>
+        <div id="dice-result"></div>
+    </div>
+    
+    <!-- イベントメッセージ用モーダル -->
+    <div id="event-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <p id="event-message"></p>
+            <p id="event-effect" class="event-effect-display"></p>
+            <button id="event-ok-btn">OK</button>
+        </div>
+    </div>
+
+    <!-- コース選択用モーダル -->
+    <div id="course-select-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2 id="course-select-title"></h2>
+            <div id="course-options">
+                <button data-course="company">会社員/公務員コース</button>
+                <button data-course="freelance">フリーランス/起業コース</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
