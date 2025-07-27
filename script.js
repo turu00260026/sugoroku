@@ -353,15 +353,16 @@ function processSalary() {
     if (player.work_style === 'freelance') {
         const turnsFromStart = player.current_turn - player.freelance_start_turn + 1;
         console.log(`フリーランス給与計算: current_turn=${player.current_turn}, freelance_start_turn=${player.freelance_start_turn}, turnsFromStart=${turnsFromStart}`);
-        if (turnsFromStart >= 1 && turnsFromStart <= 5) {
+        if (player.current_turn >= player.freelance_start_turn && turnsFromStart >= 1 && turnsFromStart <= 5) {
             // 最初の5ターンは50%の報酬（1〜5ターン目）
             current_salary = Math.floor(current_salary * 0.5);
             salaryInfo = `（起業${turnsFromStart}ターン目・報酬50%）`;
             console.log(`報酬50%適用: 元${player.base_salary + salary_increases} → ${current_salary}`);
-        } else if (turnsFromStart > 5) {
+        } else if (player.current_turn >= player.freelance_start_turn && turnsFromStart > 5) {
             salaryInfo = '（起業・安定期）';
         } else {
             salaryInfo = '（起業準備中）';
+            console.log('フリーランス準備中のため通常給与');
         }
     } else {
         // 会社員の場合
@@ -636,7 +637,8 @@ function setupCareerChangeSelection() {
                 } else {
                     player.work_style = 'freelance';
                     player.course = 'freelance';
-                    player.freelance_start_turn = player.current_turn + 1; // 次のターンからフリーランス開始
+                    // 現在のターン + 2 に設定（現在のターンが終了した次のターンから開始）
+                    player.freelance_start_turn = player.current_turn + 2;
                     console.log(`転職成功: work_style=${player.work_style}, course=${player.course}, freelance_start_turn=${player.freelance_start_turn}, current_turn=${player.current_turn}`);
                 }
                 
@@ -1899,7 +1901,7 @@ function setupEventHandlers() {
             // 働き方を設定
             if (e.target.dataset.course === 'freelance') {
                 player.work_style = 'freelance';
-                player.freelance_start_turn = player.current_turn + 1; // 次のターンから起業開始
+                player.freelance_start_turn = player.current_turn + 2; // 次のターンから起業開始
             } else {
                 player.work_style = 'employee';
             }
