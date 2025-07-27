@@ -148,6 +148,7 @@ let player = {
   divorce_age: 0, // 離婚した年齢
   divorce_proposals_received: 0, // 離婚の提案を受けた回数（45歳、58歳）
   is_retired: false, // 退職したかどうか
+  role_retirement_age: 0, // 役職定年を迎えた年齢
   business_success_at_45: false, // 45歳で事業成功イベントを受けたかどうか
   business_success_at_53: false, // 53歳で事業成功イベントを受けたかどうか
   business_success: false, // 事業成功したかどうか（45歳または53歳）
@@ -345,7 +346,18 @@ function processSalary() {
     
     // 勤務年数計算
     const yearsWorked = Math.max(0, player.age - player.job_start_age);
-    const salary_increases = Math.floor(yearsWorked / 2) * 10000;
+    
+    // 会社員の場合、役職定年後は昇給停止
+    let salary_increases = 0;
+    if (player.work_style === 'employee' && player.role_retirement_age > 0) {
+        // 役職定年時点での昇給額で固定
+        const yearsUntilRoleRetirement = Math.max(0, player.role_retirement_age - player.job_start_age);
+        salary_increases = Math.floor(yearsUntilRoleRetirement / 2) * 10000;
+    } else {
+        // 通常の昇給計算
+        salary_increases = Math.floor(yearsWorked / 2) * 10000;
+    }
+    
     let current_salary = player.base_salary + salary_increases;
     
     // フリーランス・起業コースの特別処理
@@ -366,11 +378,18 @@ function processSalary() {
         }
     } else {
         // 会社員の場合
+        let baseInfo = '';
         switch(player.career_path) {
-            case 'high_school': salaryInfo = '（高卒・会社員）'; break;
-            case 'college': salaryInfo = '（専門卒・会社員）'; break;
-            case 'university': salaryInfo = '（大卒・会社員）'; break;
-            default: salaryInfo = '（会社員）';
+            case 'high_school': baseInfo = '（高卒・会社員'; break;
+            case 'college': baseInfo = '（専門卒・会社員'; break;
+            case 'university': baseInfo = '（大卒・会社員'; break;
+            default: baseInfo = '（会社員';
+        }
+        
+        if (player.role_retirement_age > 0) {
+            salaryInfo = baseInfo + '・役職定年後）';
+        } else {
+            salaryInfo = baseInfo + '）';
         }
     }
     
@@ -608,81 +627,66 @@ function setupCareerChangeSelection() {
         
         if (e.target.dataset.careerChange) {
             const careerChoice = e.target.dataset.careerChange;
-            console.log('選択された転職先:', careerChoice);
+            const oldWorkStyle = player.work_style;
+            console.log('選択された転職先:', careerChoice, '現在の働き方:', oldWorkStyle);
             
             hideCareerChangeModal();
             
-            // 転職の成功確率を判定
-            const success = Math.random() < 0.5; // 50%の確率
-            
-            if (success) {
-                // 転職成功
-                const oldWorkStyle = player.work_style;
-                
-                // カウンターを増加
+            // 転職パターンによって処理を分岐
+            if (oldWorkStyle === 'employee' && careerChoice === 'company') {
+                // 会社員 → 別の企業への転職（50%確率で給与UP/DOWN）
+                const success = Math.random() < 0.5;
                 player.job_changes++;
-                if ((oldWorkStyle === 'employee' && careerChoice === 'freelance') || 
-                    (oldWorkStyle === 'freelance' && careerChoice === 'company')) {
-                    player.course_changes++; // 働き方が変わった場合のみコース変更としてカウント
-                }
                 
-                // 働き方を変更
-                if (careerChoice === 'company') {
-                    // フリーランスから会社員に転職した場合、新しい会社員としての開始年齢を設定
-                    if (oldWorkStyle === 'freelance') {
-                        player.job_start_age = player.age; // 転職時点を新しい就職年齢とする
+                setTimeout(() => {
+                    if (success) {
+                        player.base_salary = Math.floor(player.base_salary * 1.2);
+                        showEventMessage('転職成功！給与が20%アップした！', player.age, { happiness: 5 });
+                    } else {
+                        player.base_salary = Math.floor(player.base_salary * 0.8);
+                        showEventMessage('転職は厳しい結果に…給与が20%ダウンした。', player.age, { happiness: -3 });
                     }
+                }, 100);
+                
+            } else if (oldWorkStyle === 'employee' && careerChoice === 'freelance') {
+                // 会社員 → フリーランス（必ず成功、5ターン50%OFF）
+                player.job_changes++;
+                player.course_changes++;
+                player.work_style = 'freelance';
+                player.course = 'freelance';
+                player.freelance_start_turn = player.current_turn + 2;
+                
+                setTimeout(() => {
+                    showEventMessage('フリーランス・起業への転身成功！自由度が高まった！最初の5ターンは報酬50%OFF！', player.age, { happiness: 5 });
+                }, 100);
+                console.log(`フリーランス転職成功: freelance_start_turn=${player.freelance_start_turn}, current_turn=${player.current_turn}`);
+                
+            } else if (oldWorkStyle === 'freelance' && careerChoice === 'company') {
+                // フリーランス → 企業転職（50%確率で給与UP/DOWN）
+                const success = Math.random() < 0.5;
+                player.job_changes++;
+                
+                if (success) {
+                    player.course_changes++;
                     player.work_style = 'employee';
                     player.course = 'company';
+                    player.job_start_age = player.age;
+                    player.base_salary = Math.floor(player.base_salary * 1.2);
+                    
+                    setTimeout(() => {
+                        showEventMessage('企業への転職成功！安定した給与が得られるようになった！給与が20%アップした！', player.age, { happiness: 5 });
+                    }, 100);
                 } else {
-                    player.work_style = 'freelance';
-                    player.course = 'freelance';
-                    // 現在のターン + 2 に設定（現在のターンが終了した次のターンから開始）
-                    player.freelance_start_turn = player.current_turn + 2;
-                    console.log(`転職成功: work_style=${player.work_style}, course=${player.course}, freelance_start_turn=${player.freelance_start_turn}, current_turn=${player.current_turn}`);
+                    player.base_salary = Math.floor(player.base_salary * 0.8);
+                    setTimeout(() => {
+                        showEventMessage('企業への転職は厳しい結果に…現在の事業で報酬が20%ダウンした。', player.age, { happiness: -3 });
+                    }, 100);
                 }
                 
-                // 転職ボーナス（20%アップ）を先に適用
-                player.base_salary = Math.floor(player.base_salary * 1.2);
-                
+            } else if (oldWorkStyle === 'freelance' && careerChoice === 'freelance') {
+                // フリーランス → フリーランス継続
                 setTimeout(() => {
-                    let message = '';
-                    if (careerChoice === 'company') {
-                        if (oldWorkStyle === 'freelance') {
-                            message = '企業への転職成功！安定した給与が得られるようになった！給与が20%アップした！';
-                        } else {
-                            message = '転職成功！給与が20%アップした！';
-                        }
-                    } else {
-                        if (oldWorkStyle === 'employee') {
-                            message = 'フリーランス・起業への転身成功！自由度が高まった！最初の5ターンは報酬50%OFF！';
-                        } else {
-                            message = '引き続きがんばることにした！報酬が20%アップした！';
-                        }
-                    }
-                    console.log('転職成功メッセージ表示:', message);
-                    showEventMessage(message, player.age, { happiness: 5 });
-                }, 100);
-            } else {
-                // 転職失敗（働き方は変わらず、給与ダウン）
-                player.base_salary = Math.floor(player.base_salary * 0.8);
-                setTimeout(() => {
-                    let message = '';
-                    if (careerChoice === 'company') {
-                        if (oldWorkStyle === 'freelance') {
-                            message = '企業への転職は厳しい結果に…現在の事業で報酬が20%ダウンした。';
-                        } else {
-                            message = '企業への転職は厳しい結果に…現在の仕事で給与が20%ダウンした。';
-                        }
-                    } else {
-                        if (oldWorkStyle === 'employee') {
-                            message = 'フリーランス・起業への転身は厳しい結果に…現在の仕事で給与が20%ダウンした。';
-                        } else {
-                            message = '引き続きがんばることにしたが、うまくいかず…現在の事業で報酬が20%ダウンした。';
-                        }
-                    }
-                    console.log('転職失敗メッセージ表示:', message);
-                    showEventMessage(message, player.age, { happiness: -3 });
+                    showEventMessage('フリーランスで引き続きがんばることにした！', player.age, { happiness: 2 });
                 }, 100);
             }
         }
@@ -877,6 +881,11 @@ function triggerEvent(position) {
     // 子どもが生まれるイベントチェック
     if (checkChildBirthEvent()) {
         return; // 子どもが生まれるイベントが発生した場合はここで終了
+    }
+    
+    // 役職定年イベントチェック（会社員の55歳）
+    if (checkRoleRetirementEvent()) {
+        return; // 役職定年イベントが発生した場合はここで終了
     }
     
     // 退職イベントチェック（会社員の65歳）
@@ -1183,7 +1192,7 @@ function checkJobChangeEvent() {
 // 結婚イベントをチェック
 function checkMarriageEvent() {
     // すでに結婚している場合は結婚イベントを発生させない
-    if (player.is_married) {
+    if (player.is_married || player.has_divorced) {
         return false;
     }
     
@@ -1334,6 +1343,19 @@ function checkChildBirthEvent() {
             }, 100);
             return true;
         }
+    }
+    return false;
+}
+
+// 役職定年イベントをチェック（会社員の55歳）
+function checkRoleRetirementEvent() {
+    if (player.age === 55 && player.work_style === 'employee' && player.role_retirement_age === 0) {
+        player.role_retirement_age = 55;
+        
+        setTimeout(() => {
+            showEventMessage('55歳で役職定年を迎えました。これ以降は給与の昇給が停止します。', player.age, { happiness: -2 });
+        }, 100);
+        return true;
     }
     return false;
 }
