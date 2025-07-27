@@ -203,6 +203,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ゲーム盤面の初期化
 function initializeGameBoard() {
+    // ゲームボードのサイズに合わせてSVGサイズを調整
+    const gameBoard = document.getElementById('game-board');
+    const boardRect = gameBoard.getBoundingClientRect();
+    svg.setAttribute('width', boardRect.width);
+    svg.setAttribute('height', boardRect.height);
+    svg.setAttribute('viewBox', `0 0 ${boardRect.width} ${boardRect.height}`);
+    
     // SVGで道を描画
     const gamePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     gamePath.setAttribute('id', 'game-path');
@@ -211,6 +218,21 @@ function initializeGameBoard() {
     
     // 道の分割とマス情報の生成
     generateSquares(gamePath);
+    
+    // ウィンドウサイズ変更時にSVGサイズを再調整
+    window.addEventListener('resize', adjustBoardSize);
+}
+
+// ボードサイズの調整
+function adjustBoardSize() {
+    const gameBoard = document.getElementById('game-board');
+    const boardRect = gameBoard.getBoundingClientRect();
+    svg.setAttribute('width', boardRect.width);
+    svg.setAttribute('height', boardRect.height);
+    svg.setAttribute('viewBox', `0 0 ${boardRect.width} ${boardRect.height}`);
+    
+    // プレイヤーの位置も再調整
+    updatePlayerPosition();
 }
 
 // 道の分割とマス情報の生成

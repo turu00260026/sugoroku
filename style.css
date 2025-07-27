@@ -6,6 +6,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
 }
 
 h1 {
@@ -515,5 +521,261 @@ h1 {
     }
     100% {
         transform: scale(1);
+    }
+}
+
+/* スマホ対応のレスポンシブデザイン */
+@media screen and (max-width: 768px) {
+    body {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    
+    /* ゲームボードのサイズ調整 */
+    #game-board {
+        width: 100vw;
+        max-width: 360px;
+        height: 270px;
+        margin-bottom: 15px;
+    }
+    
+    #board-svg {
+        width: 100%;
+        height: 100%;
+    }
+    
+    /* プレイヤーのサイズ調整 */
+    #player-pawn {
+        width: 60px;
+        height: 60px;
+    }
+    
+    /* 情報パネルの調整 */
+    #info-panel {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+    
+    #info-panel div {
+        text-align: center;
+    }
+    
+    /* コントロールパネルの調整 */
+    #control-panel {
+        padding: 10px;
+        gap: 8px;
+    }
+    
+    /* ルーレットのサイズ調整 */
+    #roulette {
+        width: 120px;
+        height: 120px;
+        margin: 10px auto;
+    }
+    
+    .number {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+    
+    #roulette-needle {
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-bottom: 45px solid #e74c3c;
+        top: 15px;
+    }
+    
+    /* ボタンのサイズ調整 */
+    #roll-dice {
+        padding: 15px 25px;
+        font-size: 16px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    #dice-result {
+        font-size: 16px;
+    }
+    
+    /* モーダルの調整 */
+    .modal-content {
+        padding: 20px;
+        max-width: 90vw;
+        width: 90%;
+        margin: 0 5%;
+    }
+    
+    .modal-content h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+    
+    .modal-content p {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    
+    /* キャラクター選択ボタン */
+    .character-buttons {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .char-select-btn {
+        min-width: 200px;
+        padding: 15px;
+    }
+    
+    .char-select-btn img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    /* 選択肢ボタンの調整 */
+    #career-start-options,
+    #job-change-options,
+    #marriage-options,
+    #divorce-options,
+    #career-change-options,
+    #business-expansion-options {
+        gap: 10px;
+    }
+    
+    #career-start-options button,
+    #job-change-options button,
+    #marriage-options button,
+    #divorce-options button,
+    #career-change-options button,
+    #business-expansion-options button {
+        padding: 15px 20px;
+        font-size: 16px;
+        min-width: 200px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    #course-options {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    #course-options button {
+        padding: 15px 20px;
+        font-size: 16px;
+        min-width: 200px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .choice-btn {
+        padding: 12px 20px;
+        font-size: 16px;
+        min-width: 140px;
+        min-height: 44px;
+        margin: 5px;
+        touch-action: manipulation;
+    }
+    
+    #choice-buttons {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    /* タイトル画面の調整 */
+    .title-screen {
+        padding: 20px;
+        max-width: 90vw;
+    }
+    
+    .title-image {
+        max-width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .start-button {
+        padding: 15px 30px;
+        font-size: 18px;
+    }
+    
+    /* イベント効果表示の調整 */
+    .event-effect-display {
+        font-size: 14px;
+        padding: 8px;
+        margin: 10px 0;
+    }
+    
+    #event-message {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    
+    /* ボタンの調整 */
+    #event-ok-btn,
+    #restart-btn {
+        padding: 15px 25px;
+        font-size: 16px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+}
+
+/* 非常に小さな画面（iPhone SE等）への対応 */
+@media screen and (max-width: 375px) {
+    #game-board {
+        max-width: 320px;
+        height: 240px;
+    }
+    
+    #player-pawn {
+        width: 50px;
+        height: 50px;
+    }
+    
+    #roulette {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .number {
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+    }
+    
+    #roulette-needle {
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-bottom: 35px solid #e74c3c;
+        top: 12px;
+    }
+    
+    .modal-content {
+        padding: 15px;
+    }
+    
+    .modal-content h2 {
+        font-size: 16px;
+    }
+    
+    .char-select-btn {
+        min-width: 150px;
+        padding: 10px;
+    }
+    
+    .char-select-btn img {
+        width: 50px;
+        height: 50px;
     }
 }
