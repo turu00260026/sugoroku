@@ -538,10 +538,13 @@ h1 {
     
     /* ゲームボードのサイズ調整 */
     #game-board {
-        width: 100vw;
+        width: 90vw;
         max-width: 360px;
-        height: 270px;
         margin-bottom: 15px;
+        position: relative;
+        /* アスペクト比を維持（800:600 = 4:3） */
+        aspect-ratio: 4 / 3;
+        height: auto;
     }
     
     #board-svg {
@@ -734,8 +737,9 @@ h1 {
 /* 非常に小さな画面（iPhone SE等）への対応 */
 @media screen and (max-width: 375px) {
     #game-board {
+        width: 95vw;
         max-width: 320px;
-        height: 240px;
+        /* アスペクト比は維持される */
     }
     
     #player-pawn {

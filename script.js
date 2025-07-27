@@ -203,12 +203,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ゲーム盤面の初期化
 function initializeGameBoard() {
-    // ゲームボードのサイズに合わせてSVGサイズを調整
-    const gameBoard = document.getElementById('game-board');
-    const boardRect = gameBoard.getBoundingClientRect();
-    svg.setAttribute('width', boardRect.width);
-    svg.setAttribute('height', boardRect.height);
-    svg.setAttribute('viewBox', `0 0 ${boardRect.width} ${boardRect.height}`);
+    // SVGのviewBoxを固定サイズ（800x600）に設定して、CSSでスケーリング
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('viewBox', '0 0 800 600');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     
     // SVGで道を描画
     const gamePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -219,20 +218,21 @@ function initializeGameBoard() {
     // 道の分割とマス情報の生成
     generateSquares(gamePath);
     
-    // ウィンドウサイズ変更時にSVGサイズを再調整
-    window.addEventListener('resize', adjustBoardSize);
+    // 初期プレイヤー位置を設定
+    setTimeout(() => {
+        updatePlayerPosition();
+    }, 100);
+    
+    // ウィンドウサイズ変更時にプレイヤー位置を再調整
+    window.addEventListener('resize', adjustPlayerPosition);
 }
 
-// ボードサイズの調整
-function adjustBoardSize() {
-    const gameBoard = document.getElementById('game-board');
-    const boardRect = gameBoard.getBoundingClientRect();
-    svg.setAttribute('width', boardRect.width);
-    svg.setAttribute('height', boardRect.height);
-    svg.setAttribute('viewBox', `0 0 ${boardRect.width} ${boardRect.height}`);
-    
-    // プレイヤーの位置も再調整
-    updatePlayerPosition();
+// プレイヤー位置の調整
+function adjustPlayerPosition() {
+    // プレイヤーの位置を現在の位置で更新
+    setTimeout(() => {
+        updatePlayerPosition();
+    }, 100);
 }
 
 // 道の分割とマス情報の生成
@@ -300,8 +300,26 @@ function drawSquareNumber(x, y, number) {
 function updatePlayerPosition() {
     if (squarePositions[currentPosition]) {
         const pos = squarePositions[currentPosition];
-        playerPawn.style.left = (pos.x - 80) + 'px'; // 中央に配置するため80px調整（160pxの半分）
-        playerPawn.style.top = (pos.y - 80) + 'px';
+        const gameBoard = document.getElementById('game-board');
+        const boardRect = gameBoard.getBoundingClientRect();
+        
+        // SVGの実際のサイズとviewBoxサイズの比率を計算
+        const scaleX = boardRect.width / 800;  // 800はviewBoxの幅
+        const scaleY = boardRect.height / 600; // 600はviewBoxの高さ
+        
+        // プレイヤーのサイズを取得（スマホ対応で動的に変わる）
+        const computedStyle = window.getComputedStyle(playerPawn);
+        const playerWidth = parseInt(computedStyle.width) || 160; // デフォルト160px
+        const playerHeight = parseInt(computedStyle.height) || 160;
+        
+        // スケールされた位置を計算
+        const scaledX = pos.x * scaleX;
+        const scaledY = pos.y * scaleY;
+        
+        // プレイヤーを中央に配置
+        playerPawn.style.left = (scaledX - playerWidth / 2) + 'px';
+        playerPawn.style.top = (scaledY - playerHeight / 2) + 'px';
+        
         currentPositionSpan.textContent = currentPosition;
         updatePlayerInfo(); // プレイヤー情報も更新
     }
