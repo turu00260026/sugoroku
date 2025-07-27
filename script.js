@@ -868,9 +868,12 @@ function triggerEvent(position) {
         return; // 転職イベントが発生した場合はここで終了
     }
     
-    // 結婚イベントチェック
-    if (checkMarriageEvent()) {
-        return; // 結婚イベントが発生した場合はここで終了
+    // 結婚イベントチェック（30歳で必ず発生）
+    if (player.age === 30 && !player.is_married && !player.has_divorced && player.marriage_proposals_received === 0) {
+        console.log('30歳で結婚イベント発生');
+        player.marriage_proposals_received++;
+        showMarriageModal();
+        return; // イベントが発生した場合はここで終了
     }
     
     // 離婚イベントチェック
@@ -1189,22 +1192,19 @@ function checkJobChangeEvent() {
     return false;
 }
 
-// 結婚イベントをチェック
+// 結婚イベントをチェック（30歳で必ず発生）
 function checkMarriageEvent() {
     // すでに結婚している場合は結婚イベントを発生させない
     if (player.is_married || player.has_divorced) {
         return false;
     }
     
-    const targetAges = [30, 38];
-    
-    for (const age of targetAges) {
-        if (player.age === age && player.marriage_proposals_received < 2) {
-            console.log(`${age}歳で結婚イベント発生！`);
-            player.marriage_proposals_received++;
-            showMarriageModal();
-            return true;
-        }
+    // 30歳で必ず結婚イベントを発生（1回のみ）
+    if (player.age === 30 && player.marriage_proposals_received === 0) {
+        console.log(`30歳で結婚イベント必ず発生！`);
+        player.marriage_proposals_received++;
+        showMarriageModal();
+        return true;
     }
     return false;
 }
